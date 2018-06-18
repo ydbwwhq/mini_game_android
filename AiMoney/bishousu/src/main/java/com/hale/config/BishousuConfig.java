@@ -9,4 +9,8 @@ public final class BishousuConfig {
     public static final int kWhatReadyToPlay  = 101;
     public static final int kWhatCountDown    = 102;
     public static final int kWhatMachineClick = 103;
+
+
+
+    public static String kMoneyKey = "kMoneyKey";
 }

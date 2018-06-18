@@ -1,8 +1,11 @@
 package com.hale.aimoney.main.activity;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -14,6 +17,7 @@ import android.widget.Toast;
 import com.hale.aimoney.R;
 import com.hale.aimoney.common.CommonConfig;
 import com.hale.aimoney.main.adapter.MainAdapter;
+import com.hale.aimoney.main.receiver.MoneyChangedReceiver;
 import com.hale.bishousu.activity.BishousuActivity;
 
 public class MainActivity extends Activity {
@@ -56,6 +60,19 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        Handler handler = new Handler(){
+            @Override
+            public void handleMessage(Message message){
+                float obj = (float)message.obj;
+                mTV.setText("你已获得" + obj + "积分");
+
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("MoneyChanged");
+        MoneyChangedReceiver receiver = new MoneyChangedReceiver(handler);
+        registerReceiver(receiver,filter);
 
     }
     public void getMoney(View view){

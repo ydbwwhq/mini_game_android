@@ -113,7 +113,7 @@
         android:textSize="30sp"
         android:textColor="@android:color/holo_red_dark"
         android:textAlignment="center"
-        android:text="100"
+        android:text=""
         android:id="@+id/timeTV"
         />
 </RelativeLayout>
