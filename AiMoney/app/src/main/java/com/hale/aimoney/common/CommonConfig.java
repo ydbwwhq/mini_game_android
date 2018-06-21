@@ -5,5 +5,8 @@ package com.hale.aimoney.common;
  */
 
 public final class CommonConfig {
-   public static String kMoneyKey = "kMoneyKey";
+   public static String kMoneyKey        = "kMoneyKey";
+
+
+   public static String kLastTimestampKey    = "kLastTimestampKey";
 }

@@ -13,4 +13,7 @@ public final class BishousuConfig {
 
 
     public static String kMoneyKey = "kMoneyKey";
+    public static String kBiShouSuNumKey  = "kBiShouSuNumKey";
+
+
 }

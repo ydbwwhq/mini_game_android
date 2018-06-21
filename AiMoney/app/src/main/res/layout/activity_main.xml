@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@android:color/white"
     tools:context="com.hale.aimoney.main.activity.MainActivity">
     <RelativeLayout
         android:layout_width="match_parent"
@@ -56,8 +57,14 @@
         android:dividerHeight="0.5dp"
         android:divider="@android:color/darker_gray"
         />
-    <LinearLayout
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@android:color/holo_red_dark"/>
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-5096850339378215/6824993539"/>
+
 </LinearLayout>

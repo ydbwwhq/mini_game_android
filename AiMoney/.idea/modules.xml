@@ -5,6 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/AiMoney.iml" filepath="$PROJECT_DIR$/AiMoney.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/bishousu/bishousu.iml" filepath="$PROJECT_DIR$/bishousu/bishousu.iml" />
+      <module fileurl="file://$PROJECT_DIR$/common/common.iml" filepath="$PROJECT_DIR$/common/common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pinrenpin/pinrenpin.iml" filepath="$PROJECT_DIR$/pinrenpin/pinrenpin.iml" />
     </modules>
   </component>
 </project>

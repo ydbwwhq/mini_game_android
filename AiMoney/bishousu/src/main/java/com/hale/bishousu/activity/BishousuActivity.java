@@ -2,8 +2,10 @@ package com.hale.bishousu.activity;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -18,8 +20,10 @@ import android.widget.Toast;
 
 import com.hale.bishousu.R;
 
+import com.hale.common.FileUtil;
 import com.hale.config.BishousuConfig;
 
+import java.math.BigDecimal;
 import java.util.Random;
 
 public class BishousuActivity extends Activity {
@@ -82,6 +86,10 @@ public class BishousuActivity extends Activity {
                       } else if (mTotalScore < 18){
                           minSec = 30;
                           maxSec = 40;
+                      }else
+                      {
+                          minSec = 40;
+                          maxSec = 60;
                       }
                       int randSec = random.nextInt(maxSec - minSec + 1) + minSec;
                       mSecond = randSec;
@@ -111,12 +119,13 @@ public class BishousuActivity extends Activity {
                       {
                           mIsPlaying = false;
                           mStartBtn.setText("开始");
+                          mStartBtn.setClickable(true);
                           if(mANum < mBNum)
                           {
-                              Toast.makeText(BishousuActivity.this,"😂😂😂你输了😂😂😂",Toast.LENGTH_LONG).show();
+                              Toast.makeText(BishousuActivity.this,"😂😂😂你输了😂😂😂",Toast.LENGTH_SHORT).show();
                           }else if(mANum == mBNum)
                           {
-                              Toast.makeText(BishousuActivity.this,"😊😊😊平局😊😊😊",Toast.LENGTH_LONG).show();
+                              Toast.makeText(BishousuActivity.this,"😊😊😊平局😊😊😊",Toast.LENGTH_SHORT).show();
                           }else {
                               float reward;
                               Random random = new Random();
@@ -136,12 +145,13 @@ public class BishousuActivity extends Activity {
                                   maxReward = 4;
                               }
                               reward = (float) ((random.nextInt(maxReward - minReward + 1) + minReward)/ 10.0);
+                              BigDecimal b  =   new  BigDecimal(reward);
+                              reward   =  b.setScale(2,  BigDecimal.ROUND_HALF_UP).floatValue();
                               mTimeTV.setText("你已获得+" + reward + "积分");
-                              SharedPreferences sharedPreferences = getSharedPreferences("setting", 0);
-                              SharedPreferences.Editor editor =  sharedPreferences.edit();
-                              editor.putFloat(BishousuConfig.kMoneyKey,reward + mTotalScore);
-                              editor.commit();
-                              Toast.makeText(BishousuActivity.this,"🎉🎉🎉你赢了🎉🎉🎉",Toast.LENGTH_LONG).show();
+
+                              FileUtil.save(BishousuConfig.kMoneyKey,(reward + mTotalScore)+"",BishousuActivity.this);
+
+                              Toast.makeText(BishousuActivity.this,"🎉🎉🎉你赢了🎉🎉🎉",Toast.LENGTH_SHORT).show();
 
                               Intent intent = new Intent();
                               intent.setAction("MoneyChanged");
@@ -198,26 +208,78 @@ public class BishousuActivity extends Activity {
     {
         this.finish();
     }
-    public void touchStartBtn(View view)
+    public void touchStartBtn(final View view)
+    {
+        view.setClickable(false);
+        String num = FileUtil.read(BishousuConfig.kBiShouSuNumKey,this);
+        if(num.length() > 0) {
+            int n = Integer.valueOf(num);
+            Log.i("hh", "n=" + n);
+            if (n > 4) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+                builder.setTitle("是否愿意花费0.2个积分获得一次比赛机会？");
+                builder.setPositiveButton("是", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String toString = FileUtil.read("kMoneyKey", BishousuActivity.this);
+                        if (toString.length() > 0) {
+                            mTotalScore = Float.valueOf(toString);
+                        }
+                        if (mTotalScore > 0.2) {
+                            mTotalScore = mTotalScore - 0.2f;
+                            FileUtil.save(BishousuConfig.kMoneyKey, mTotalScore + "", BishousuActivity.this);
+                            Intent intent = new Intent();
+                            intent.setAction("MoneyChanged");
+                            intent.putExtra(BishousuConfig.kMoneyKey, mTotalScore);
+                            sendBroadcast(intent);
+                            realStart();
+                        } else {
+                            view.setClickable(true);
+                            Toast.makeText(BishousuActivity.this, "积分不足，请明天再来挑战!!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                builder.setNegativeButton("否", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        view.setClickable(true);
+                    }
+                });
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+            } else
+            {
+                realStart();
+            }
+
+            n++;
+            FileUtil.save(BishousuConfig.kBiShouSuNumKey,""+n,this);
+        }else
+        {
+            FileUtil.save(BishousuConfig.kBiShouSuNumKey,"1",this);
+            realStart();
+        }
+
+    }
+    public void realStart()
     {
         setmANum(0);
         setmBNum(0);
-        SharedPreferences sharedPreferences = getSharedPreferences("setting", 0);
-        mTotalScore = sharedPreferences.getFloat(BishousuConfig.kMoneyKey, 0);
+        String scoreStr = FileUtil.read(BishousuConfig.kMoneyKey,BishousuActivity.this);
+        if(scoreStr.length() > 0)
+        {
+            mTotalScore = Float.valueOf(scoreStr);
+        }else
+        {
+            mTotalScore = 0;
+        }
+
         mTimeTV.setText("正在寻找对手...");
         Random rand = new Random();
         int sec = rand.nextInt(3)+1;
         mTimerHandler.sendEmptyMessageDelayed(BishousuConfig.kWhatFindOpponent,sec * 1000);
     }
-//    public  void play()
-//    {
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-//        Intent intent = new Intent("ABC");
-//        PendingIntent sender = PendingIntent.getBroadcast(this,0,intent,0);
-//        alarmManager.setRepeating(AlarmManager.RTC,System.currentTimeMillis(),1000,sender);
-//        sendBroadcast(intent);
-//
-//    }
     public void setmANum(int num)
     {
         this.mANum = num;
